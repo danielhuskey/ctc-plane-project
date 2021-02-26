@@ -20,6 +20,7 @@ def serialconnect():
             exit()
             
 def connect_to_arduino(raspbPath):
+    #made new mathod to connect to arduino
     serialconnect.serialcom = serial.Serial(raspbPath, 9600)
     serialconnect.serialcom.timeout = 1
     print("serial success " + raspbPath)
