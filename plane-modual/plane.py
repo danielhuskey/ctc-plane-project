@@ -9,27 +9,34 @@ servoPIN0 = 14
 servoPIN1 = 15
 servoPIN2 = 16
 servoPIN3 = 24
+motorPIN0 = 25
+motorPIN1 = 12
 
 
 
-def gpio_setup(pin0, pin1, pin2, pin3):
+def gpio_setup(pin0, pin1, pin2, pin3, pin4, pin5):
     
     GPIO.setup(pin0, GPIO.OUT)
     GPIO.setup(pin1, GPIO.OUT)
     GPIO.setup(pin2, GPIO.OUT)
     GPIO.setup(pin3, GPIO.OUT)
-gpio_setup(servoPIN0,servoPIN1,servoPIN2,servoPIN3)
+    GPIO.setup(pin4, GPIO.OUT)
+    GPIO.setup(pin5, GPIO.OUT)
+gpio_setup(servoPIN0,servoPIN1,servoPIN2,servoPIN3, motorPIN0, motorPIN1)
 
 
 servo0 = GPIO.PWM(servoPIN0, 50)
 servo1 = GPIO.PWM(servoPIN1, 50)
 servo2 = GPIO.PWM(servoPIN2, 50)
 servo3 = GPIO.PWM(servoPIN3, 50)
-
+motor0 = GPIO.PWM(motorPIN0, 50)
+motor1 = GPIO.PWM(motorPIN1, 50)
 servo0.start(2.5)
 servo1.start(2.5)
 servo2.start(2.5)
 servo3.start(2.5)
+motor0.start(2.5)
+motor1.start(2.5
 
 
 
@@ -80,17 +87,15 @@ def write_to_servo():
     servo1angle = controller_Input_Spilt[1]
     servo2angle = controller_Input_Spilt[2]
     servo3angle = controller_Input_Spilt[3]
+    motor0power = controller_Input_Spilt[4]
+    motor1power = controller_Input_Spilt[5]
 
     servo0.ChangeDutyCycle(2+(int(servo0angle)/18))
     servo1.ChangeDutyCycle(2+(int(servo1angle)/18))
     servo2.ChangeDutyCycle(2+(int(servo2angle)/18))
     servo3.ChangeDutyCycle(2+(int(servo3angle)/18))
-    time.sleep(.2)
-    servo0.ChangeDutyCycle(0)
-    servo1.ChangeDutyCycle(0)
-    servo2.ChangeDutyCycle(0)
-    servo3.ChangeDutyCycle(0)
-    
+    motor0.ChangeDutyCycle(2+(int(motor0power)/18))
+    motor1.ChangeDutyCycle(2+(int(motor1power)/18))
 #one time tests/ connections
 
 
