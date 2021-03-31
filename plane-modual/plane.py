@@ -1,104 +1,89 @@
 #importing stuff
 import socket
-import serial
 import time
+import RPi.GPIO as GPIO
+ip = '192.168.1.90'
+port = 2222
+servoPIN0 = 14
+servoPIN1 = 24
+servoPIN2 = 16
+servoPIN3 = 26
 
-#try to connect to arduino
+servo0 = GPIO.PWM(servoPIN0, 50)
+servo1 = GPIO.PWM(servoPIN1, 50)
+servo2 = GPIO.PWM(servoPIN2, 50)
+servo3 = GPIO.PWM(servoPIN3, 50)
 
+servo0.start(2.5)
+servo1.start(2.5)
+servo2.start(2.5)
+servo3.start(2.5)
 
-def serialconnect():
-    try:
-        connect_to_arduino('/dev/ttyACM0')
-        
-    except serial.serialutil.SerialException:
-        print("serial not connected AMC0 Trying AMC1")
-        try:
-            connect_to_arduino('/dev/ttyACM1')
-            
-        except serial.serialutil.SerialException:
-            print("no serial connection to arduino. Exiting") 
-            exit()
-            
-def connect_to_arduino(raspbPath):
-    #made new mathod to connect to arduino
-    serialconnect.serialcom = serial.Serial(raspbPath, 9600)
-    serialconnect.serialcom.timeout = 1
-    print("serial success " + raspbPath)
+def gpio_setup(pin0, pin1, pin2, pin3):
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(pin0, GPIO.OUT)
+    GPIO.setup(pin1, GPIO.OUT)
+    GPIO.setup(pin2, GPIO.OUT)
+    GPIO.setup(pin3, GPIO.OUT)
     
 def servoTest():
     # moving the servos to make sure its working
-    serialconnect.serialcom.write("180")
-    time.sleep(2)#sec
-    serialconnect.serialcom.write("0")
+    servo0.ChangeDutyCycle(2+(0/18))
+    servo1.ChangeDutyCycle(2+(0/18))
+    servo2.ChangeDutyCycle(2+(0/18))
+    servo3.ChangeDutyCycle(2+(0/18))
+    time.sleep(.2)
+    servo0.ChangeDutyCycle(2+(90/18))
+    servo1.ChangeDutyCycle(2+(90/18))
+    servo2.ChangeDutyCycle(2+(90/18))
+    servo3.ChangeDutyCycle(2+(90/18))
+    time.sleep(.2)
+    servo0.ChangeDutyCycle(2+(180/18))
+    servo1.ChangeDutyCycle(2+(180/18))
+    servo2.ChangeDutyCycle(2+(180/18))
+    servo3.ChangeDutyCycle(2+(180/18))
+    time.sleep(.2)
+    servo0.ChangeDutyCycle(2+(0/18))
+    servo1.ChangeDutyCycle(2+(0/18))
+    servo2.ChangeDutyCycle(2+(0/18))
+    servo3.ChangeDutyCycle(2+(0/18))
     print('worked')
 
-#connect to the ground server also handles reconencting to said server if connection is lost. 
-
 def connectServer():
-    time.sleep(1)
+    #connect to the ground server also handles reconencting to said server if connection is lost. 
     connectServer.groundServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         print("Connecting to the server")        
-        time.sleep(1)
-        connectServer.groundServer.close
-        connectServer.groundServer.connect(('192.168.1.90',  2222))
+        connect_to_ground_server()
     except socket.error:
         while socket.error == True:
             time.sleep(1)
-            connectServer.groundServer.close
-            connectServer.groundServer.connect(('192.168.1.90',  2222)) 
+            connect_to_ground_server()
 
+def connect_to_ground_server():
+    #connecting to gound server
+    connectServer.groundServer.close
+    connectServer.groundServer.connect((ip,  port))
 
-#sending commands to the servo
+def sepperating_commands():
+    #sepperting the commands to the plane into their own parts
+    total_Controler_Input = connectServer.groundServer.recv(1024)
+    controller_Input_Spilt = total_Controler_Input.split(',')
+    motor0Power.sepperating_commands = controller_Input_Spilt[0]
+    motor1Power.sepperating_commands = controller_Input_Spilt[1]
+    servo0angle.sepperating_commands = controller_Input_Spilt[2]
+    servo1angle.sepperating_commands = controller_Input_Spilt[3]
+    servo2angle.sepperating_commands = controller_Input_Spilt[4]
+    servo3angle.sepperating_commands = controller_Input_Spilt[5]
 
-def servoSend():
-    try:
-        servoInput = connectServer.groundServer.recv(1024)    
-        time.sleep(1)
-        
-        if servoInput == b'':
-            print("error moving to 0 servo")
-            serialconnect.serialcom.write("0")
-            connectServer()
-            
-        else:
-            try:
-                serialconnect.serialcom.write(servoInput)
-                print(servoInput)
-            except socket.error:
-                    time.sleep(4)
-                    print("socket error trying to reconnect")
-                    groundServer.connect((ip,  port))
-    except socket.error:
-            connectServer()
-
-
-# Not Used Yet. Conntrol for esc's are the same as servos so just reused code to save time. 
-def escSend():
-    try:
-        escInput = connectServer.groundServer.recv(1024)    
-        time.sleep(1)
-        
-        if servoInput == b'':
-            print("error motor power half")
-            serialconnect.serialcom.write("50")
-             ### Add Try to recconect
-            connectServer()
-            
-        else:
-            try:
-                serialconnect.serialcom.write(escInput)
-                print(escInput)
-            except socket.error:
-                    time.sleep(4)
-                    print("socket error trying to reconnect")
-                    groundServer.connect((ip,  port))
-    except socket.error:
-            reconnect()
-
-
+def write_to_servo()    
+    servo0.ChangeDutyCycle(2+(servo0angle.sepperating_commands/18))
+    servo1.ChangeDutyCycle(2+(servo1angle.sepperating_commands/18))
+    servo2.ChangeDutyCycle(2+(servo2angle.sepperating_commands/18))
+    servo3.ChangeDutyCycle(2+(servo3angle.sepperating_commands/18))
 
 #one time tests/ connections
+gpio_setup(servoPIN0,servoPIN1,servoPIN2,servoPIN3)
 serialconnect()
 servoTest()
 connectServer()
