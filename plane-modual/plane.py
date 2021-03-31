@@ -8,7 +8,7 @@ port = 2222
 servoPIN0 = 14
 servoPIN1 = 15
 servoPIN2 = 16
-servoPIN3 = 26
+servoPIN3 = 24
 
 
 
