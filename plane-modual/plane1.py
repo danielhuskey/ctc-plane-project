@@ -27,7 +27,7 @@ def serialconnect():
 
 def connect_to_arduino(raspbPath):
     #made new mathod to connect to arduino
-    serialconnect.serialcom = serial.Serial(raspbPath, 9600)
+    serialconnect.serialcom = serial.Serial(raspbPath, 115200)
     serialconnect.serialcom.timeout = 1
     print("serial success " + raspbPath)
     
@@ -63,10 +63,6 @@ def sepperating_commands():
     motor1Power.sepperating_commands = controller_Input_Spilt[1]
     servoPitch.sepperating_commands = controller_Input_Spilt[2]
     servoRoll.sepperating_commands = controller_Input_Spilt[3]
-
-def controller_plus_leveling_plane():
-    #no go away not know
-
 
 
 def sening_commands_to_arduino ():
